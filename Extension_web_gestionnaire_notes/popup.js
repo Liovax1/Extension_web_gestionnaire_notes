@@ -257,6 +257,7 @@ document.getElementById("home-link").onclick = () => {
 if (localStorage.getItem("userId")) {
     userId = localStorage.getItem("userId");
     notesSection.style.display = "block";
+    fetchNotes(); // Recharger les notes locales ou distantes à l'ouverture
 } else {
     notesSection.style.display = "none";
     loginForm.style.display = "none";
