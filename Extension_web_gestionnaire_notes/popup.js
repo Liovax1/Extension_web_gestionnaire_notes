@@ -68,46 +68,65 @@ function addNote() {
         return;
     }
 
-    if (userId) {
+    if (token) {
         fetch("http://localhost:5000/notes", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "user_id": userId
+                "Authorization": token
             },
             body: JSON.stringify({ note: note })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("Erreur lors de l'ajout de la note.");
+            }
+        })
         .then(data => {
             fetchNotes(); // Rafraîchir les notes après ajout
+            noteInput.value = ""; // Réinitialiser le champ de texte
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Impossible d'ajouter la note. Veuillez réessayer.");
         });
     } else {
-        const notes = JSON.parse(localStorage.getItem("notes") || "[]");
-        notes.push(note);
-        localStorage.setItem("notes", JSON.stringify(notes));
-        fetchNotes(); // Rafraîchir les notes après ajout local
+        alert("Vous devez être connecté pour ajouter une note.");
     }
-
-    noteInput.value = ""; // Réinitialiser le champ de texte
 }
 
 
 // Fonction pour supprimer une note
 function deleteNote(noteId) {
-    fetch("http://localhost:5000/notes", {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-            "user_id": userId
-        },
-        body: JSON.stringify({ note_id: noteId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        fetchNotes(); // Rafraîchir la liste des notes après suppression
-    });
+    if (token) {
+        fetch("http://localhost:5000/notes", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token
+            },
+            body: JSON.stringify({ note_id: noteId })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("Erreur lors de la suppression de la note.");
+            }
+        })
+        .then(data => {
+            fetchNotes(); // Rafraîchir la liste des notes après suppression
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Impossible de supprimer la note. Veuillez réessayer.");
+        });
+    } else {
+        alert("Vous devez être connecté pour supprimer une note.");
+    }
 }
-
 
 // Fonction pour supprimer une note localement
 function deleteLocalNote(index) {
