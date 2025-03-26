@@ -28,21 +28,21 @@ def handle_notes():
 
     if request.method == "GET":
         cursor = db.cursor()
-        cursor.execute("SELECT id, note FROM notes WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT noteId, content FROM notes WHERE userId = %s", (user_id,))
         notes = cursor.fetchall()
         return jsonify(notes)
 
     elif request.method == "POST":
         note = request.json.get("note")
         cursor = db.cursor()
-        cursor.execute("INSERT INTO notes (note, user_id) VALUES (%s, %s)", (note, user_id))
+        cursor.execute("INSERT INTO notes (content, userId) VALUES (%s, %s)", (note, user_id))
         db.commit()
         return jsonify({"message": "Note ajoutée"}), 201
 
     elif request.method == "DELETE":
         note_id = request.json.get("note_id")
         cursor = db.cursor()
-        cursor.execute("DELETE FROM notes WHERE id = %s AND user_id = %s", (note_id, user_id))
+        cursor.execute("DELETE FROM notes WHERE noteId = %s AND userId = %s", (note_id, user_id))
         db.commit()
         return jsonify({"message": "Note supprimée"})
 
@@ -64,7 +64,7 @@ def register():
     
     # Insérer l'utilisateur dans la base
     user_id = str(uuid.uuid4())
-    cursor.execute("INSERT INTO users (email, password_hash, user_id) VALUES (%s, %s, %s)", 
+    cursor.execute("INSERT INTO users (email, password, userId) VALUES (%s, %s, %s)", 
                    (email, password_hash, user_id))
     db.commit()
     return jsonify({"message": "Utilisateur enregistré", "user_id": user_id})
