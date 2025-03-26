@@ -58,7 +58,6 @@ function fetchNotes() {
     }
 }
 
-
 // Fonction pour ajouter une note
 function addNote() {
     const note = noteInput.value.trim();
@@ -93,10 +92,13 @@ function addNote() {
             alert("Impossible d'ajouter la note. Veuillez réessayer.");
         });
     } else {
-        alert("Vous devez être connecté pour ajouter une note.");
+        const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+        notes.push(note);
+        localStorage.setItem("notes", JSON.stringify(notes));
+        fetchNotes(); // Rafraîchir les notes après ajout local
+        noteInput.value = ""; // Réinitialiser le champ de texte
     }
 }
-
 
 // Fonction pour supprimer une note
 function deleteNote(noteId) {
