@@ -14,6 +14,7 @@ const registerForm = document.getElementById("register-form");
 const notesSection = document.getElementById("notes-section");
 
 let userId = null;
+let token = localStorage.getItem("token");
 
 // Vérification ou création d'un ID utilisateur unique
 if (!localStorage.getItem("userId")) {
@@ -24,10 +25,10 @@ if (!localStorage.getItem("userId")) {
 
 // Fonction pour récupérer et afficher les notes
 function fetchNotes() {
-    if (userId) {
+    if (token) {
         fetch("http://localhost:5000/notes", {
             method: "GET",
-            headers: { "user_id": userId }
+            headers: { "Authorization": token }
         })
         .then(response => response.json())
         .then(notes => {
@@ -130,13 +131,13 @@ loginBtn.onclick = () => {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.user_id) {
-            userId = data.user_id;
-            localStorage.setItem("userId", userId);
-            authLinks.style.display = "none"; // Masquer les liens de connexion et inscription
+        if (data.token) {
+            token = data.token;
+            localStorage.setItem("token", token);
             loginForm.style.display = "none";
             registerForm.style.display = "none";
-            notesSection.style.display = "block"; // Afficher la section des notes
+            notesSection.style.display = "block";
+            updateAuthLinks();
             fetchNotes();
         } else {
             alert("Erreur de connexion");
@@ -172,40 +173,68 @@ registerBtn.onclick = () => {
     });
 };
 
-// Gestion du changement entre connexion et inscription
+
+// Mise à jour des liens de navigation en fonction de l'état de connexion
+function updateAuthLinks() {
+    const authToggle = document.getElementById("auth-toggle");
+    if (token) {
+        authToggle.innerText = "Déconnexion";
+        authToggle.onclick = () => {
+            fetch("http://localhost:5000/logout", {
+                method: "POST",
+                headers: { "Authorization": token }
+            })
+            .then(response => {
+                if (response.ok) {
+                    localStorage.removeItem("token");
+                    token = null;
+                    notesSection.style.display = "none";
+                    loginForm.style.display = "none";
+                    registerForm.style.display = "none";
+                    updateAuthLinks();
+                }
+            });
+        };
+    } else {
+        authToggle.innerText = "Connexion";
+        authToggle.onclick = () => {
+            loginForm.style.display = "block";
+            registerForm.style.display = "none";
+            notesSection.style.display = "none";
+        };
+    }
+}
+
+// Navigation entre les formulaires
 document.getElementById("register-link").onclick = () => {
     registerForm.style.display = "block";
     loginForm.style.display = "none";
-    notesSection.style.display = "none"; // Masquer la section des notes
+    notesSection.style.display = "none";
 };
 
 document.getElementById("login-link").onclick = () => {
     loginForm.style.display = "block";
     registerForm.style.display = "none";
-    notesSection.style.display = "none"; // Masquer la section des notes
-};
-
-// Gestion de l'affichage du formulaire de connexion
-document.getElementById("auth-toggle").onclick = () => {
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
-    notesSection.style.display = "none"; // Masquer la section des notes
+    notesSection.style.display = "none";
 };
 
 document.getElementById("home-link").onclick = () => {
     loginForm.style.display = "none";
     registerForm.style.display = "none";
-    notesSection.style.display = "block"; // Afficher la section des notes
-    authLinks.style.display = "block"; // Afficher les liens de connexion et inscription
+    notesSection.style.display = "block";
 };
 
-// Vérification si l'utilisateur est déjà connecté
+// Affichage par défaut de la section d'ajout de note
 if (localStorage.getItem("userId")) {
     userId = localStorage.getItem("userId");
-    authLinks.style.display = "none"; // Masquer les liens de connexion et inscription
-    notesSection.style.display = "block"; // Afficher la section des notes
-    fetchNotes();
+    notesSection.style.display = "block";
+} else {
+    notesSection.style.display = "none";
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
 }
+updateAuthLinks();
+if (token) fetchNotes();
 
 // Associer la fonction d'ajout de note au bouton
 addNoteBtn.onclick = addNote;

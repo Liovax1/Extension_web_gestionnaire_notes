@@ -44,3 +44,11 @@ li {
 #status {
     font-weight: bold;
 }
+
+#login-form, #register-form, #notes-section {
+    display: none; /* Par défaut, masqué */
+}
+
+#notes-section {
+    display: block; /* Affiché par défaut si connecté */
+}
