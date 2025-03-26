@@ -28,7 +28,7 @@ def handle_notes():
 
     if request.method == "GET":
         cursor = db.cursor()
-        cursor.execute("SELECT * FROM notes WHERE user_id = %s", (user_id,))
+        cursor.execute("SELECT id, note FROM notes WHERE user_id = %s", (user_id,))
         notes = cursor.fetchall()
         return jsonify(notes)
 

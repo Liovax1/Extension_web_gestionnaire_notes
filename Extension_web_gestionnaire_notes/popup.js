@@ -15,6 +15,13 @@ const notesSection = document.getElementById("notes-section");
 
 let userId = null;
 
+// Vérification ou création d'un ID utilisateur unique
+if (!localStorage.getItem("userId")) {
+    const newUserId = crypto.randomUUID();
+    localStorage.setItem("userId", newUserId);
+    console.log("Nouvel ID utilisateur généré :", newUserId);
+}
+
 // Fonction pour récupérer et afficher les notes
 function fetchNotes() {
     if (userId) {
@@ -27,10 +34,10 @@ function fetchNotes() {
             notesList.innerHTML = "";
             notes.forEach(note => {
                 const li = document.createElement("li");
-                li.innerText = note[1];
+                li.innerText = note[1]; // Afficher la note (note[1] contient le texte de la note)
                 const deleteBtn = document.createElement("button");
                 deleteBtn.innerText = "Supprimer";
-                deleteBtn.onclick = () => deleteNote(note[0]);
+                deleteBtn.onclick = () => deleteNote(note[0]); // Utilisation de note[0] pour l'ID
                 li.appendChild(deleteBtn);
                 notesList.appendChild(li);
             });
@@ -50,9 +57,15 @@ function fetchNotes() {
     }
 }
 
+
 // Fonction pour ajouter une note
 function addNote() {
-    const note = noteInput.value;
+    const note = noteInput.value.trim();
+
+    if (note === "") {
+        alert("La note ne peut pas être vide.");
+        return;
+    }
 
     if (userId) {
         fetch("http://localhost:5000/notes", {
@@ -65,15 +78,18 @@ function addNote() {
         })
         .then(response => response.json())
         .then(data => {
-            fetchNotes();
+            fetchNotes(); // Rafraîchir les notes après ajout
         });
     } else {
         const notes = JSON.parse(localStorage.getItem("notes") || "[]");
         notes.push(note);
         localStorage.setItem("notes", JSON.stringify(notes));
-        fetchNotes();
+        fetchNotes(); // Rafraîchir les notes après ajout local
     }
+
+    noteInput.value = ""; // Réinitialiser le champ de texte
 }
+
 
 // Fonction pour supprimer une note
 function deleteNote(noteId) {
@@ -87,9 +103,10 @@ function deleteNote(noteId) {
     })
     .then(response => response.json())
     .then(data => {
-        fetchNotes();
+        fetchNotes(); // Rafraîchir la liste des notes après suppression
     });
 }
+
 
 // Fonction pour supprimer une note localement
 function deleteLocalNote(index) {
