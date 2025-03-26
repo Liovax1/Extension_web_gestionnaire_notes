@@ -34,6 +34,10 @@ def register():
     email = data.get("email")
     password = data.get("password")
     
+    # Vérifier que les champs requis sont fournis
+    if not email or not password:
+        return jsonify({"message": "Email et mot de passe sont requis"}), 400
+    
     # Vérifier si l'email existe déjà
     cursor = db.cursor()
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))

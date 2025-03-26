@@ -147,8 +147,20 @@ loginBtn.onclick = () => {
 
 // Inscription de l'utilisateur
 registerBtn.onclick = () => {
-    const email = registerEmail.value;
-    const password = registerPassword.value;
+    const email = registerEmail.value.trim();
+    const password = registerPassword.value.trim();
+    const passwordConfirm = document.getElementById("register-password-confirm").value.trim();
+
+    // Validation des champs
+    if (!email || !password || !passwordConfirm) {
+        alert("Tous les champs sont requis.");
+        return;
+    }
+
+    if (password !== passwordConfirm) {
+        alert("Les mots de passe ne correspondent pas.");
+        return;
+    }
 
     fetch("http://localhost:5000/register", {
         method: "POST",
@@ -159,16 +171,12 @@ registerBtn.onclick = () => {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.user_id) {
-            userId = data.user_id;
-            localStorage.setItem("userId", userId);
-            authLinks.style.display = "none"; // Masquer les liens de connexion et inscription
-            loginForm.style.display = "none";
+        if (data.message === "Utilisateur enregistré") {
+            alert("Inscription réussie. Vous pouvez maintenant vous connecter.");
             registerForm.style.display = "none";
-            notesSection.style.display = "block"; // Afficher la section des notes
-            fetchNotes();
+            loginForm.style.display = "block";
         } else {
-            alert("Erreur d'inscription");
+            alert(data.message || "Erreur d'inscription.");
         }
     });
 };
