@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire de Notes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Liens de navigation -->
+    <div id="auth-links">
+        <a href="#" id="home-link">Accueil</a>
+        <a href="#" id="auth-toggle">Connexion</a>
+    </div>
+
+    <!-- Formulaire de connexion -->
+    <div id="login-form" style="display: none;">
+        <h2>Connexion</h2>
+        <input type="text" id="login-email" placeholder="Nom d'utilisateur">
+        <input type="password" id="login-password" placeholder="Mot de passe">
+        <button id="login-button">Se connecter</button>
+        <p>Pas encore de compte ? <a href="#" id="register-link">S'inscrire</a></p>
+    </div>
+
+    <!-- Formulaire d'inscription -->
+    <div id="register-form" style="display: none;">
+        <h2>Inscription</h2>
+        <input type="text" id="register-email" placeholder="Email">
+        <input type="password" id="register-password" placeholder="Mot de passe">
+        <button id="register-button">S'inscrire</button>
+        <p>Déjà inscrit ? <a href="#" id="login-link">Se connecter</a></p>
+    </div>
+
+    <!-- Section des notes -->
+    <div id="notes-section">
+        <h2>Prendre une note</h2>
+        <textarea id="note" placeholder="Écris ta note ici..."></textarea>
+        <button id="save">Enregistrer</button>
+
+        <h3>Mes Notes</h3>
+        <ul id="notes-list"></ul>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Gestionnaire de Notes",
+  "version": "1.0",
+  "description": "Une extension pour prendre des notes.",
+  "permissions": ["storage", "identity"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.jpg",
+      "48": "icon.jpg",
+      "128": "icon.jpg"
+    }
+  }
+}
