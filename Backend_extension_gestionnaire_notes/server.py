@@ -118,5 +118,30 @@ def handle_notes():
         db.commit()
         return jsonify({"message": "Note supprimée"})
 
+@app.route("/change-password", methods=["POST"])
+def change_password():
+    user_id = authenticate_request()
+    if not user_id:
+        return jsonify({"message": "Non autorisé"}), 401
+
+    data = request.json
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not new_password:
+        return jsonify({"message": "Tous les champs sont requis"}), 400
+
+    cursor = db.cursor()
+    cursor.execute("SELECT password FROM users WHERE userId = %s", (user_id,))
+    user = cursor.fetchone()
+
+    if user and bcrypt.checkpw(current_password.encode(), user[0].encode()):
+        new_password_hash = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+        cursor.execute("UPDATE users SET password = %s WHERE userId = %s", (new_password_hash, user_id))
+        db.commit()
+        return jsonify({"message": "Mot de passe changé avec succès"}), 200
+    else:
+        return jsonify({"message": "Mot de passe actuel incorrect"}), 400
+
 if __name__ == "__main__":
     app.run(debug=True)

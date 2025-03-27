@@ -11,6 +11,7 @@
     <!-- Liens de navigation -->
     <div id="auth-links">
         <a href="#" id="home-link">Accueil</a>
+        <a href="#" id="settings-link" style="display: none;">Paramètres</a>
         <a href="#" id="auth-toggle">Connexion</a>
     </div>
 
@@ -31,6 +32,15 @@
         <input type="password" id="register-password-confirm" placeholder="Confirmer le mot de passe">
         <button id="register-button">S'inscrire</button>
         <p>Déjà inscrit ? <a href="#" id="login-link">Se connecter</a></p>
+    </div>
+
+    <!-- Formulaire de changement de mot de passe -->
+    <div id="settings-form" style="display: none;">
+        <h2>Changer le mot de passe</h2>
+        <input type="password" id="current-password" placeholder="Mot de passe actuel">
+        <input type="password" id="new-password" placeholder="Nouveau mot de passe">
+        <input type="password" id="confirm-new-password" placeholder="Confirmer le nouveau mot de passe">
+        <button id="change-password-button">Changer le mot de passe</button>
     </div>
 
     <!-- Section des notes -->

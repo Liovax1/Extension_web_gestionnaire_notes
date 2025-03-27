@@ -12,6 +12,9 @@ const authLinks = document.getElementById("auth-links");
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
 const notesSection = document.getElementById("notes-section");
+const settingsLink = document.getElementById("settings-link");
+const settingsForm = document.getElementById("settings-form");
+const changePasswordButton = document.getElementById("change-password-button");
 
 let userId = null;
 let token = localStorage.getItem("token");
@@ -212,6 +215,7 @@ function updateAuthLinks() {
     const authToggle = document.getElementById("auth-toggle");
     if (token) {
         authToggle.innerText = "Déconnexion";
+        settingsLink.style.display = "inline"; // Afficher le lien "Paramètres"
         authToggle.onclick = () => {
             fetch("http://localhost:5000/logout", {
                 method: "POST",
@@ -221,9 +225,11 @@ function updateAuthLinks() {
                 if (response.ok) {
                     localStorage.removeItem("token");
                     token = null;
-                    notesSection.style.display = "block";
+                    notesSection.style.display = "none";
                     loginForm.style.display = "none";
                     registerForm.style.display = "none";
+                    settingsForm.style.display = "none";
+                    settingsLink.style.display = "none"; // Masquer le lien "Paramètres"
                     updateAuthLinks();
                     fetchNotes();
                 }
@@ -231,13 +237,59 @@ function updateAuthLinks() {
         };
     } else {
         authToggle.innerText = "Connexion";
+        settingsLink.style.display = "none"; // Masquer le lien "Paramètres"
         authToggle.onclick = () => {
             loginForm.style.display = "block";
             registerForm.style.display = "none";
             notesSection.style.display = "none";
+            settingsForm.style.display = "none";
         };
     }
 }
+
+// Gestion du lien "Paramètres"
+settingsLink.onclick = () => {
+    settingsForm.style.display = "block";
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
+    notesSection.style.display = "none";
+};
+
+// Gestion du changement de mot de passe
+changePasswordButton.onclick = () => {
+    const currentPassword = document.getElementById("current-password").value.trim();
+    const newPassword = document.getElementById("new-password").value.trim();
+    const confirmNewPassword = document.getElementById("confirm-new-password").value.trim();
+
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+        alert("Tous les champs sont requis.");
+        return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+        alert("Les nouveaux mots de passe ne correspondent pas.");
+        return;
+    }
+
+    fetch("http://localhost:5000/change-password", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token
+        },
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Mot de passe changé avec succès") {
+            alert("Votre mot de passe a été changé.");
+            settingsForm.style.display = "none";
+            notesSection.style.display = "block";
+        } else {
+            alert(data.message || "Erreur lors du changement de mot de passe.");
+        }
+    });
+};
 
 // Navigation entre les formulaires
 document.getElementById("register-link").onclick = () => {
