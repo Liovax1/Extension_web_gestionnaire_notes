@@ -2,17 +2,16 @@ import os
 import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import mariadb  # Utilisation de mariadb au lieu de mysql
+import mariadb
 import hashlib
 import uuid
 import secrets
 from datetime import datetime, timedelta
-import bcrypt  # Importation de bcrypt pour le hachage sécurisé
+import bcrypt
 
 app = Flask(__name__)
 CORS(app)
 
-# Connexion à la base de données MariaDB
 try:
     db = mariadb.connect(
         host="localhost",
@@ -25,7 +24,6 @@ except mariadb.Error as e:
     print(f"Erreur de connexion à la base de données MariaDB : {e}")
     exit(1)
 
-# Fonction pour générer un jeton de session
 def generate_token():
     return secrets.token_hex(32)
 
@@ -35,21 +33,17 @@ def register():
     email = data.get("email")
     password = data.get("password")
     
-    # Vérifier que les champs requis sont fournis
     if not email or not password:
         return jsonify({"message": "Email et mot de passe sont requis"}), 400
     
-    # Vérifier si l'email existe déjà
     cursor = db.cursor()
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     existing_user = cursor.fetchone()
     if existing_user:
         return jsonify({"message": "L'email est déjà utilisé"}), 400
     
-    # Hacher le mot de passe avec bcrypt
     password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     
-    # Insérer l'utilisateur dans la base
     cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s)", 
                    (email, password_hash))
     db.commit()
@@ -66,11 +60,9 @@ def login():
     user = cursor.fetchone()
     
     if user and bcrypt.checkpw(password.encode(), user[1].encode()):
-        # Générer un jeton de session
         token = generate_token()
         expires_at = datetime.now() + timedelta(days=1)
         
-        # Insérer la session dans la base
         cursor.execute("INSERT INTO sessions (userId, token, expires_at) VALUES (%s, %s, %s)", 
                        (user[0], token, expires_at))
         db.commit()
@@ -89,7 +81,7 @@ def logout():
     db.commit()
     return jsonify({"message": "Déconnexion réussie"}), 200
 
-# Middleware pour vérifier l'authentification
+# on vérifie l'authentification
 def authenticate_request():
     token = request.headers.get("Authorization")
     if not token:

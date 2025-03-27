@@ -35,10 +35,12 @@ function fetchNotes() {
             notesList.innerHTML = "";
             notes.forEach(note => {
                 const li = document.createElement("li");
-                li.innerText = note[1]; // Afficher la note (note[1] contient le texte de la note)
+                const noteText = document.createElement("span");
+                noteText.innerText = note[1]; // Afficher la note (note[1] contient le texte de la note)
                 const deleteBtn = document.createElement("button");
-                deleteBtn.innerText = "Supprimer";
+                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'; // Remplacer par l'icône
                 deleteBtn.onclick = () => deleteNote(note[0]); // Utilisation de note[0] pour l'ID
+                li.appendChild(noteText);
                 li.appendChild(deleteBtn);
                 notesList.appendChild(li);
             });
@@ -48,10 +50,12 @@ function fetchNotes() {
         notesList.innerHTML = "";
         notes.forEach((note, index) => {
             const li = document.createElement("li");
-            li.innerText = note;
+            const noteText = document.createElement("span");
+            noteText.innerText = note;
             const deleteBtn = document.createElement("button");
-            deleteBtn.innerText = "Supprimer";
+            deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'; // Remplacer par l'icône
             deleteBtn.onclick = () => deleteLocalNote(index);
+            li.appendChild(noteText);
             li.appendChild(deleteBtn);
             notesList.appendChild(li);
         });
@@ -217,10 +221,11 @@ function updateAuthLinks() {
                 if (response.ok) {
                     localStorage.removeItem("token");
                     token = null;
-                    notesSection.style.display = "none";
+                    notesSection.style.display = "block";
                     loginForm.style.display = "none";
                     registerForm.style.display = "none";
                     updateAuthLinks();
+                    fetchNotes();
                 }
             });
         };
