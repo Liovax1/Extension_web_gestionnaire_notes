@@ -15,16 +15,11 @@ const notesSection = document.getElementById("notes-section");
 const settingsLink = document.getElementById("settings-link");
 const settingsForm = document.getElementById("settings-form");
 const changePasswordButton = document.getElementById("change-password-button");
+const forgotPasswordForm = document.getElementById("forgot-password-form");
+const resetPasswordForm = document.getElementById("reset-password-form");
 
 let userId = null;
 let token = localStorage.getItem("token");
-
-// Vérification ou création d'un ID utilisateur unique
-if (!localStorage.getItem("userId")) {
-    const newUserId = crypto.randomUUID();
-    localStorage.setItem("userId", newUserId);
-    console.log("Nouvel ID utilisateur généré :", newUserId);
-}
 
 // Fonction pour récupérer et afficher les notes
 function fetchNotes() {
@@ -200,7 +195,7 @@ registerBtn.onclick = () => {
     .then(response => response.json())
     .then(data => {
         if (data.message === "Utilisateur enregistré") {
-            alert("Inscription réussie. Vous pouvez maintenant vous connecter.");
+            alert(`Inscription réussie. Votre ID utilisateur est : ${data.userId}. Conservez-le précieusement.`);
             registerForm.style.display = "none";
             loginForm.style.display = "block";
         } else {
@@ -225,11 +220,11 @@ function updateAuthLinks() {
                 if (response.ok) {
                     localStorage.removeItem("token");
                     token = null;
-                    notesSection.style.display = "none";
+                    notesSection.style.display = "block";
                     loginForm.style.display = "none";
                     registerForm.style.display = "none";
                     settingsForm.style.display = "none";
-                    settingsLink.style.display = "none"; // Masquer le lien "Paramètres"
+                    settingsLink.style.display = "none";
                     updateAuthLinks();
                     fetchNotes();
                 }
@@ -253,6 +248,25 @@ settingsLink.onclick = () => {
     loginForm.style.display = "none";
     registerForm.style.display = "none";
     notesSection.style.display = "none";
+
+    // Afficher l'UUID de l'utilisateur dans les paramètres
+    if (token) {
+        fetch("http://localhost:5000/user-info", {
+            method: "GET",
+            headers: { "Authorization": token }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.userId) {
+                document.getElementById("user-id-display").innerText = data.userId;
+            } else {
+                alert("Impossible de récupérer l'ID utilisateur.");
+            }
+        })
+        .catch(error => {
+            console.error("Erreur lors de la récupération de l'ID utilisateur :", error);
+        });
+    }
 };
 
 // Gestion du changement de mot de passe
@@ -291,6 +305,88 @@ changePasswordButton.onclick = () => {
     });
 };
 
+// Gestion du lien "Mot de passe oublié"
+document.getElementById("forgot-password-link").onclick = () => {
+    loginForm.style.display = "none";
+    forgotPasswordForm.style.display = "block";
+};
+
+// Retour à la connexion depuis le formulaire "Mot de passe oublié"
+document.getElementById("back-to-login").onclick = () => {
+    forgotPasswordForm.style.display = "none";
+    resetPasswordForm.style.display = "none";
+    loginForm.style.display = "block";
+};
+
+// Vérification de l'email et de l'UUID pour mot de passe oublié
+document.getElementById("verify-forgot-password").onclick = () => {
+    const email = document.getElementById("forgot-email").value.trim();
+    const uuid = document.getElementById("forgot-uuid").value.trim();
+
+    if (!email || !uuid) {
+        alert("Veuillez remplir tous les champs.");
+        return;
+    }
+
+    fetch("http://localhost:5000/verify-forgot-password", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, userId: uuid })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Vérification réussie") {
+            forgotPasswordForm.style.display = "none";
+            resetPasswordForm.style.display = "block";
+        } else {
+            alert(data.message || "Erreur lors de la vérification.");
+        }
+    })
+    .catch(error => {
+        console.error("Erreur lors de la vérification :", error);
+    });
+};
+
+// Réinitialisation du mot de passe après vérification
+document.getElementById("reset-password-button").onclick = () => {
+    const newPassword = document.getElementById("reset-new-password").value.trim();
+    const confirmPassword = document.getElementById("reset-confirm-password").value.trim();
+    const uuid = document.getElementById("forgot-uuid").value.trim(); // Récupérer l'UUID de l'utilisateur
+
+    if (!newPassword || !confirmPassword) {
+        alert("Veuillez remplir tous les champs.");
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        alert("Les mots de passe ne correspondent pas.");
+        return;
+    }
+
+    fetch("http://localhost:5000/reset-password", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ new_password: newPassword, userId: uuid }) // Inclure l'UUID dans la requête
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Mot de passe réinitialisé avec succès") {
+            alert("Votre mot de passe a été réinitialisé.");
+            resetPasswordForm.style.display = "none";
+            loginForm.style.display = "block";
+        } else {
+            alert(data.message || "Erreur lors de la réinitialisation.");
+        }
+    })
+    .catch(error => {
+        console.error("Erreur lors de la réinitialisation :", error);
+    });
+};
+
 // Navigation entre les formulaires
 document.getElementById("register-link").onclick = () => {
     registerForm.style.display = "block";
@@ -307,18 +403,26 @@ document.getElementById("login-link").onclick = () => {
 document.getElementById("home-link").onclick = () => {
     loginForm.style.display = "none";
     registerForm.style.display = "none";
+    settingsForm.style.display = "none";
+    forgotPasswordForm.style.display = "none"; // Masquer le formulaire "Mot de passe oublié"
+    resetPasswordForm.style.display = "none"; // Masquer le formulaire de réinitialisation
     notesSection.style.display = "block";
 };
 
-// Affichage par défaut de la section d'ajout de note
-if (localStorage.getItem("userId")) {
-    userId = localStorage.getItem("userId");
+// Affichage par défaut de la section des notes
+if (token) {
     notesSection.style.display = "block";
-    fetchNotes(); // Recharger les notes locales ou distantes à l'ouverture
+    fetchNotes(); // Recharger les notes distantes à l'ouverture
 } else {
-    notesSection.style.display = "none";
-    loginForm.style.display = "none";
-    registerForm.style.display = "none";
+    const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+    if (notes.length > 0) {
+        notesSection.style.display = "block";
+        fetchNotes(); // Recharger les notes locales à l'ouverture
+    } else {
+        notesSection.style.display = "block";
+        loginForm.style.display = "none";
+        registerForm.style.display = "none";
+    }
 }
 updateAuthLinks();
 if (token) fetchNotes();

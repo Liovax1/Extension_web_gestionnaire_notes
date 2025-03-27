@@ -22,6 +22,7 @@
         <input type="password" id="login-password" placeholder="Mot de passe">
         <button id="login-button">Se connecter</button>
         <p>Pas encore de compte ? <a href="#" id="register-link">S'inscrire</a></p>
+        <p><a href="#" id="forgot-password-link">Mot de passe oublié ?</a></p>
     </div>
 
     <!-- Formulaire d'inscription -->
@@ -34,9 +35,28 @@
         <p>Déjà inscrit ? <a href="#" id="login-link">Se connecter</a></p>
     </div>
 
+    <!-- Formulaire de vérification pour mot de passe oublié -->
+    <div id="forgot-password-form" style="display: none;">
+        <h2>Mot de passe oublié</h2>
+        <input type="text" id="forgot-email" placeholder="Entrez votre email">
+        <input type="text" id="forgot-uuid" placeholder="Entrez votre ID utilisateur">
+        <button id="verify-forgot-password">Vérifier</button>
+        <p><a href="#" id="back-to-login">Retour à la connexion</a></p>
+    </div>
+
+    <!-- Formulaire de changement de mot de passe après vérification -->
+    <div id="reset-password-form" style="display: none;">
+        <h2>Réinitialiser le mot de passe</h2>
+        <input type="password" id="reset-new-password" placeholder="Nouveau mot de passe">
+        <input type="password" id="reset-confirm-password" placeholder="Confirmer le nouveau mot de passe">
+        <button id="reset-password-button">Réinitialiser</button>
+    </div>
+
     <!-- Formulaire de changement de mot de passe -->
     <div id="settings-form" style="display: none;">
-        <h2>Changer le mot de passe</h2>
+        <h2>Paramètres</h2>
+        <p><strong>Votre ID utilisateur :</strong> <span id="user-id-display"></span></p>
+        <h3>Changer le mot de passe</h3>
         <input type="password" id="current-password" placeholder="Mot de passe actuel">
         <input type="password" id="new-password" placeholder="Nouveau mot de passe">
         <input type="password" id="confirm-new-password" placeholder="Confirmer le nouveau mot de passe">

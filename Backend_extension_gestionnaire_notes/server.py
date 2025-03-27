@@ -42,12 +42,14 @@ def register():
     if existing_user:
         return jsonify({"message": "L'email est déjà utilisé"}), 400
     
+    # Générer un UUID et garder les 8 premiers caractères
+    user_id = str(uuid.uuid4())[:8]
     password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     
-    cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s)", 
-                   (email, password_hash))
+    cursor.execute("INSERT INTO users (userId, email, password) VALUES (%s, %s, %s)", 
+                   (user_id, email, password_hash))
     db.commit()
-    return jsonify({"message": "Utilisateur enregistré"}), 201
+    return jsonify({"message": "Utilisateur enregistré", "userId": user_id}), 201
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -142,6 +144,67 @@ def change_password():
         return jsonify({"message": "Mot de passe changé avec succès"}), 200
     else:
         return jsonify({"message": "Mot de passe actuel incorrect"}), 400
+
+@app.route("/user-info", methods=["GET"])
+def user_info():
+    user_id = authenticate_request()
+    if not user_id:
+        return jsonify({"message": "Non autorisé"}), 401
+
+    cursor = db.cursor()
+    cursor.execute("SELECT userId FROM users WHERE userId = %s", (user_id,))
+    user = cursor.fetchone()
+
+    if user:
+        return jsonify({"userId": user[0]}), 200
+    else:
+        return jsonify({"message": "Utilisateur non trouvé"}), 404
+
+# Stockage temporaire des utilisateurs vérifiés (à remplacer par une solution plus robuste si nécessaire)
+verified_users = {}
+
+@app.route("/verify-forgot-password", methods=["POST"])
+def verify_forgot_password():
+    data = request.json
+    email = data.get("email")
+    user_id = data.get("userId")
+
+    if not email or not user_id:
+        return jsonify({"message": "Email et ID utilisateur requis"}), 400
+
+    cursor = db.cursor()
+    cursor.execute("SELECT userId FROM users WHERE email = %s AND userId = %s", (email, user_id))
+    user = cursor.fetchone()
+
+    if user:
+        # Stocker temporairement l'utilisateur vérifié
+        verified_users[user_id] = True
+        return jsonify({"message": "Vérification réussie"}), 200
+    else:
+        return jsonify({"message": "Email ou ID utilisateur incorrect"}), 404
+
+@app.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.json
+    new_password = data.get("new_password")
+    user_id = data.get("userId")  # Inclure l'ID utilisateur dans la requête
+
+    if not new_password or not user_id:
+        return jsonify({"message": "Nouveau mot de passe et ID utilisateur requis"}), 400
+
+    # Vérifier si l'utilisateur a été vérifié
+    if not verified_users.get(user_id):
+        return jsonify({"message": "Utilisateur non vérifié"}), 403
+
+    cursor = db.cursor()
+    new_password_hash = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    cursor.execute("UPDATE users SET password = %s WHERE userId = %s", (new_password_hash, user_id))
+    db.commit()
+
+    # Supprimer l'utilisateur vérifié après réinitialisation
+    del verified_users[user_id]
+
+    return jsonify({"message": "Mot de passe réinitialisé avec succès"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

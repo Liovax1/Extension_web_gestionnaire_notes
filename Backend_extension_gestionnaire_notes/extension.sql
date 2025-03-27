@@ -3,7 +3,7 @@ CREATE DATABASE IF NOT EXISTS gestionnaire_notes;
 USE gestionnaire_notes;
 
 CREATE TABLE users (
-    userId INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(36) PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -11,7 +11,7 @@ CREATE TABLE users (
 
 CREATE TABLE notes (
     noteId INT AUTO_INCREMENT PRIMARY KEY,
-    userId INT,
+    userId VARCHAR(36),
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
@@ -19,7 +19,7 @@ CREATE TABLE notes (
 
 CREATE TABLE sessions (
     sessionId INT AUTO_INCREMENT PRIMARY KEY,
-    userId INT,
+    userId VARCHAR(36),
     token VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP,
