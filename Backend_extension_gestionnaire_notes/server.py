@@ -7,6 +7,7 @@ import hashlib
 import uuid
 import secrets
 from datetime import datetime, timedelta
+import bcrypt  # Importation de bcrypt pour le hachage sécurisé
 
 app = Flask(__name__)
 CORS(app)
@@ -45,8 +46,8 @@ def register():
     if existing_user:
         return jsonify({"message": "L'email est déjà utilisé"}), 400
     
-    # Hacher le mot de passe
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    # Hacher le mot de passe avec bcrypt
+    password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     
     # Insérer l'utilisateur dans la base
     cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s)", 
@@ -64,7 +65,7 @@ def login():
     cursor.execute("SELECT userId, password FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
     
-    if user and user[1] == hashlib.sha256(password.encode()).hexdigest():
+    if user and bcrypt.checkpw(password.encode(), user[1].encode()):
         # Générer un jeton de session
         token = generate_token()
         expires_at = datetime.now() + timedelta(days=1)

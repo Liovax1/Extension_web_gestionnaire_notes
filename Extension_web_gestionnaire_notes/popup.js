@@ -161,7 +161,7 @@ loginBtn.onclick = () => {
             updateAuthLinks();
             fetchNotes();
         } else {
-            alert("Erreur de connexion");
+            alert("L'adresse e-mail ou le mot de passe est incorrect.");
         }
     });
 };
