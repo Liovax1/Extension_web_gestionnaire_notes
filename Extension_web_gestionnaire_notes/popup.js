@@ -195,7 +195,7 @@ registerBtn.onclick = () => {
     .then(response => response.json())
     .then(data => {
         if (data.message === "Utilisateur enregistré") {
-            alert(`Inscription réussie. Votre ID utilisateur est : ${data.userId}. Conservez-le précieusement.`);
+            alert(`Inscription réussie. Votre ID utilisateur est : ${data.userId}. Conservez-le précieusement pour recupérer votre compte.`);
             registerForm.style.display = "none";
             loginForm.style.display = "block";
         } else {
@@ -303,6 +303,33 @@ changePasswordButton.onclick = () => {
             alert(data.message || "Erreur lors du changement de mot de passe.");
         }
     });
+};
+
+// Gestion de la suppression du compte
+document.getElementById("delete-account-button").onclick = () => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et supprimera toutes vos notes.")) {
+        fetch("http://localhost:5000/delete-account", {
+            method: "DELETE",
+            headers: {
+                "Authorization": token
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Votre compte a été supprimé avec succès.");
+                localStorage.removeItem("token");
+                token = null;
+                settingsForm.style.display = "none";
+                loginForm.style.display = "block";
+                updateAuthLinks();
+            } else {
+                alert("Erreur lors de la suppression du compte. Veuillez réessayer.");
+            }
+        })
+        .catch(error => {
+            console.error("Erreur lors de la suppression du compte :", error);
+        });
+    }
 };
 
 // Gestion du lien "Mot de passe oublié"

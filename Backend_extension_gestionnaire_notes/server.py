@@ -206,5 +206,17 @@ def reset_password():
 
     return jsonify({"message": "Mot de passe réinitialisé avec succès"}), 200
 
+@app.route("/delete-account", methods=["DELETE"])
+def delete_account():
+    user_id = authenticate_request()
+    if not user_id:
+        return jsonify({"message": "Non autorisé"}), 401
+
+    cursor = db.cursor()
+    # Supprimer l'utilisateur et toutes ses données associées
+    cursor.execute("DELETE FROM users WHERE userId = %s", (user_id,))
+    db.commit()
+    return jsonify({"message": "Compte supprimé avec succès"}), 200
+
 if __name__ == "__main__":
     app.run(debug=True)
