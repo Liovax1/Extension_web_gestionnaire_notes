@@ -140,10 +140,25 @@ function deleteLocalNote(index) {
     fetchNotes();
 }
 
+// Fonction pour réinitialiser l'interface utilisateur
+function resetUI() {
+    // Vider la liste des notes
+    notesList.innerHTML = "";
+
+    // Masquer l'ID utilisateur dans les paramètres
+    document.getElementById("user-id-display").innerText = "";
+
+    // Réinitialiser le champ de saisie des notes
+    noteInput.value = "";
+}
+
 // Connexion de l'utilisateur
 loginBtn.onclick = () => {
     const email = loginEmail.value;
     const password = loginPassword.value;
+
+    // Réinitialiser l'interface utilisateur avant de se connecter
+    resetUI();
 
     fetch("http://localhost:5000/login", {
         method: "POST",
@@ -220,13 +235,19 @@ function updateAuthLinks() {
                 if (response.ok) {
                     localStorage.removeItem("token");
                     token = null;
+
+                    // Réinitialiser l'interface utilisateur après déconnexion
+                    resetUI();
+
+                    // Recharger les notes locales après déconnexion
+                    fetchNotes();
+
                     notesSection.style.display = "block";
                     loginForm.style.display = "none";
                     registerForm.style.display = "none";
                     settingsForm.style.display = "none";
                     settingsLink.style.display = "none";
                     updateAuthLinks();
-                    fetchNotes();
                 }
             });
         };
@@ -234,6 +255,9 @@ function updateAuthLinks() {
         authToggle.innerText = "Connexion";
         settingsLink.style.display = "none"; // Masquer le lien "Paramètres"
         authToggle.onclick = () => {
+            // Réinitialiser l'interface utilisateur lors du changement de compte
+            resetUI();
+
             loginForm.style.display = "block";
             registerForm.style.display = "none";
             notesSection.style.display = "none";
