@@ -84,3 +84,33 @@ li button:hover {
 #auth-toggle {
     float: right;
 }
+
+header {
+    background-color: #004f8c;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+}
+
+header nav a:first-child {
+    margin-right: auto;
+}
+
+header nav a:hover {
+    text-decoration: underline;
+}

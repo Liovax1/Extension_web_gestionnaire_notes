@@ -8,15 +8,18 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Liens de navigation -->
-    <div id="auth-links">
-        <a href="#" id="home-link">Accueil</a>
-        <a href="#" id="settings-link" style="display: none;">Paramètres</a>
-        <a href="#" id="auth-toggle">Connexion</a>
-    </div>
+    <header>
+        <nav>
+            <a href="#" id="home-link">Accueil</a>
+            <a href="#" id="settings-link" style="display: none;">Paramètres</a>
+            <a href="#" id="auth-toggle">Connexion</a>
+        </nav>
+    </header>
 
     <!-- Formulaire de connexion -->
     <div id="login-form" style="display: none;">
+        <h2 style="color: green;">Connectez-vous pour ne pas perdre vos notes !</h2>
+        <br>
         <h2>Connexion</h2>
         <input type="text" id="login-email" placeholder="Nom d'utilisateur">
         <input type="password" id="login-password" placeholder="Mot de passe">
@@ -27,6 +30,8 @@
 
     <!-- Formulaire d'inscription -->
     <div id="register-form" style="display: none;">
+        <h2 style="color: green;">Inscrivez-vous pour ne pas perdre vos notes !</h2>
+        <br>
         <h2>Inscription</h2>
         <input type="text" id="register-email" placeholder="Email">
         <input type="password" id="register-password" placeholder="Mot de passe">

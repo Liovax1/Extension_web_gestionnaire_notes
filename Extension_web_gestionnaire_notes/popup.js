@@ -238,6 +238,8 @@ function updateAuthLinks() {
             registerForm.style.display = "none";
             notesSection.style.display = "none";
             settingsForm.style.display = "none";
+            forgotPasswordForm.style.display = "none"; // Masquer le formulaire "Mot de passe oublié"
+            resetPasswordForm.style.display = "none"; // Masquer le formulaire de réinitialisation
         };
     }
 }
@@ -425,6 +427,8 @@ document.getElementById("login-link").onclick = () => {
     loginForm.style.display = "block";
     registerForm.style.display = "none";
     notesSection.style.display = "none";
+    forgotPasswordForm.style.display = "none"; // Masquer le formulaire "Mot de passe oublié"
+    resetPasswordForm.style.display = "none"; // Masquer le formulaire de réinitialisation
 };
 
 document.getElementById("home-link").onclick = () => {
