@@ -8,6 +8,7 @@ import uuid
 import secrets
 from datetime import datetime, timedelta
 import bcrypt
+from cryptography.fernet import Fernet
 
 app = Flask(__name__)
 CORS(app)
@@ -26,6 +27,13 @@ except mariadb.Error as e:
 
 def generate_token():
     return secrets.token_hex(32)
+
+# Il faut ouvrir la console python et copier les 2 lignes juste en dessous pour générer UNE SEULE FOIS une clé pour le cryptage
+# from cryptography.fernet import Fernet
+# print(Fernet.generate_key())
+
+# A remplacer par la clé générée ci-dessus
+fernet = Fernet(b'PwIofmNukw726cTm_uiQsqQG-s6cJrRYAhLR_Y7UvbU=')
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -104,17 +112,33 @@ def handle_notes():
         cursor = db.cursor()
         cursor.execute("SELECT noteId, content FROM notes WHERE userId = %s", (user_id,))
         notes = cursor.fetchall()
-        return jsonify(notes)
+
+        # Décrypter les notes avant de les renvoyer
+        decrypted_notes = []
+        for note in notes:
+            decrypted_content = fernet.decrypt(note[1].encode()).decode()
+            decrypted_notes.append((note[0], decrypted_content))
+
+        return jsonify(decrypted_notes)
 
     elif request.method == "POST":
         note = request.json.get("note")
+        if not note:
+            return jsonify({"message": "Le contenu de la note est requis"}), 400
+
+        # Crypter la note avant de la stocker
+        encrypted_note = fernet.encrypt(note.encode()).decode()
+
         cursor = db.cursor()
-        cursor.execute("INSERT INTO notes (content, userId) VALUES (%s, %s)", (note, user_id))
+        cursor.execute("INSERT INTO notes (content, userId) VALUES (%s, %s)", (encrypted_note, user_id))
         db.commit()
         return jsonify({"message": "Note ajoutée"}), 201
 
     elif request.method == "DELETE":
         note_id = request.json.get("note_id")
+        if not note_id:
+            return jsonify({"message": "L'ID de la note est requis"}), 400
+
         cursor = db.cursor()
         cursor.execute("DELETE FROM notes WHERE noteId = %s AND userId = %s", (note_id, user_id))
         db.commit()

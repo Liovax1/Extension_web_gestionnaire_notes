@@ -34,12 +34,38 @@ function fetchNotes() {
             notes.forEach(note => {
                 const li = document.createElement("li");
                 const noteText = document.createElement("span");
-                noteText.innerText = note[1]; // Afficher la note (note[1] contient le texte de la note)
-                const deleteBtn = document.createElement("button");
-                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'; // Remplacer par l'icône
-                deleteBtn.onclick = () => deleteNote(note[0]); // Utilisation de note[0] pour l'ID
+                noteText.innerText = note[1];
                 li.appendChild(noteText);
+
+                // Bouton copier
+                const copyBtn = document.createElement("button");
+                copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+                copyBtn.title = "Copier le texte";
+                copyBtn.onclick = () => {
+                    navigator.clipboard.writeText(note[1]);
+                };
+                li.appendChild(copyBtn);
+
+                // Bouton coller
+                const pasteBtn = document.createElement("button");
+                pasteBtn.innerHTML = '<i class="fa-solid fa-paste"></i>';
+                pasteBtn.title = "Coller dans la zone de saisie";
+                pasteBtn.onclick = async () => {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        noteInput.value = text;
+                    } catch (err) {
+                        alert("Impossible d'accéder au presse-papiers");
+                    }
+                };
+                li.appendChild(pasteBtn);
+
+                // Bouton supprimer
+                const deleteBtn = document.createElement("button");
+                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                deleteBtn.onclick = () => deleteNote(note[0]);
                 li.appendChild(deleteBtn);
+
                 notesList.appendChild(li);
             });
         });
@@ -50,11 +76,37 @@ function fetchNotes() {
             const li = document.createElement("li");
             const noteText = document.createElement("span");
             noteText.innerText = note;
-            const deleteBtn = document.createElement("button");
-            deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>'; // Remplacer par l'icône
-            deleteBtn.onclick = () => deleteLocalNote(index);
             li.appendChild(noteText);
+
+            // Bouton copier
+            const copyBtn = document.createElement("button");
+            copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+            copyBtn.title = "Copier le texte";
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(note);
+            };
+            li.appendChild(copyBtn);
+
+            // Bouton coller
+            const pasteBtn = document.createElement("button");
+            pasteBtn.innerHTML = '<i class="fa-solid fa-paste"></i>';
+            pasteBtn.title = "Coller dans la zone de saisie";
+            pasteBtn.onclick = async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    noteInput.value = text;
+                } catch (err) {
+                    alert("Impossible d'accéder au presse-papiers");
+                }
+            };
+            li.appendChild(pasteBtn);
+
+            // Bouton supprimer
+            const deleteBtn = document.createElement("button");
+            deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            deleteBtn.onclick = () => deleteLocalNote(index);
             li.appendChild(deleteBtn);
+
             notesList.appendChild(li);
         });
     }

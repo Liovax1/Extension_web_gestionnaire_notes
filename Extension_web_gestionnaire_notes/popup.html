@@ -73,8 +73,12 @@
 
     <!-- Section des notes -->
     <div id="notes-section">
+
         <h2>Prendre une note</h2>
-        <textarea id="note" placeholder="Écris ta note ici..."></textarea>
+        <div style="position:relative; width:100%;">
+            <textarea id="note" placeholder="Écris ta note ici..." style="box-sizing:border-box;width:100%;"></textarea>
+            <button id="paste-btn-global" title="Coller depuis le presse-papiers" style="position:absolute;top:8px;right:8px;background:#eee;border:none;border-radius:5px;padding:6px 8px;cursor:pointer;z-index:10;"><i class="fa-solid fa-paste"></i></button>
+        </div>
         <button id="save">Enregistrer</button>
 
         <h3>Mes Notes</h3>
